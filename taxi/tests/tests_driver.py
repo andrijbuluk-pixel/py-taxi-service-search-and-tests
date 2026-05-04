@@ -41,3 +41,24 @@ class DriverSearchTest(TestCase):
         self.assertIn(self.user1, drivers)
         self.assertNotIn(self.user2, drivers)
         self.assertNotIn(self.admin_user, drivers)
+
+    def test_search_driver_all(self):
+        self.client.force_login(self.admin_user)
+
+        response = self.client.get(
+            reverse("taxi:driver-list"),
+            {"username": ""}
+        )
+
+        self.assertContains(response, "tj_test")
+        self.assertContains(response, "oj_test")
+
+    def test_search_no_results_driver(self):
+        self.client.force_login(self.admin_user)
+
+        response = self.client.get(
+            reverse("taxi:driver-list"),
+            {"username": "NonExistent"}
+        )
+
+        self.assertEqual(len(response.context["driver_list"]), 0)

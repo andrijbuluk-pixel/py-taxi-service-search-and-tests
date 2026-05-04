@@ -41,3 +41,21 @@ class CarSearchTests(TestCase):
         self.assertNotContains(response, "Corolla")
 
         self.assertEqual(response.status_code, 200)
+
+    def test_search_car_all(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("taxi:car-list"), {"model": ""})
+
+        self.assertContains(response, "Camry")
+        self.assertContains(response, "Corolla")
+
+    def test_search_no_results_car(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse("taxi:car-list"),
+            {"model": "NonExistent"}
+        )
+
+        self.assertEqual(len(response.context["car_list"]), 0)

@@ -16,12 +16,12 @@ class ManufacturerTest(TestCase):
 
         self.manufacturer1 = Manufacturer.objects.create(
             name="Toyota",
-            country=""
+            country="Japan"
         )
 
         self.manufacturer2 = Manufacturer.objects.create(
             name="Tesla",
-            country=""
+            country="USA"
         )
 
     def test_search_manufacturer(self):
@@ -32,5 +32,26 @@ class ManufacturerTest(TestCase):
 
         self.assertContains(response, "Toyota")
         self.assertNotContains(response, "Tesla")
+        self.assertContains(response, "")
 
         self.assertEqual(response.status_code, 200)
+
+    def test_search_manufacturer_all(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse("taxi:manufacturer-list"),
+            {"name": ""}
+        )
+        self.assertContains(response, "Toyota")
+        self.assertContains(response, "Tesla")
+
+    def test_search_no_results_manufacturer(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse("taxi:manufacturer-list"),
+            {"name": "NonExistent"}
+        )
+
+        self.assertEqual(len(response.context["manufacturer_list"]), 0)
